@@ -7,7 +7,7 @@ using NLsolve
 
 ###########
 function asynch(μ,J)
-    """compute the stationnary activity"""
+    """compute the stationnary activity, in units of 1/τ_h"""
     function I(A)
         return (1-exp(-1/A)) * (μ + J*A) - 1
     end
@@ -28,25 +28,27 @@ end
 # neuron parameters
 mu_0 = 1.2
 mu_1 = 1.2
-
 J = 0.4
-Delta = 0.5
-τ = 0.2
 
-T = 40
+τ_h = 10 # ms ##### !!!! all times are expressed in units of τ_h !!!!
+# kernel params:
+Δ = 0.5 # τ_h
+τ = 0.2 # τ_h
+
+T = 100  # τ_h
 T_step = T/2
+
 μ(t) = mu_0*(t<T_step) + mu_1*(t>=T_step) # + mu_0*(t>=2*T_step)
 
 # intensity function
-# beta = 40 # inverse temperature for 2 clusters
-beta = 1e5 # inverse temperature for 3 clusters
+beta = 1e5 # inverse temperature 
 f(v) = beta*(v>=1)# exp(beta*(v-1))
 
 # simulation parameters
 N = 100 # number of neurons
-dt = 2e-4
+dt = 5e-4 # τ_h
 
-delay = Int(Delta/dt)
+delay = Int(Δ/dt)
 times = 0:dt:T
 
 
@@ -69,7 +71,7 @@ r = zeros(length(times))
 
 ## Asynchronous state: 
 v[:,1]=sample_asynch(mu_0,N)
-r[1] = asynch(mu_0,J)
+r[1] = asynch(mu_0,J) # in units of 1/τ_h
 
 εA_0[1] = asynch(mu_0,J)
 
@@ -114,7 +116,8 @@ run(1:nstep,mu_t)
 ################### EXTRACT DATA  ##########################################
 ############################################################################
 
-function compute_A(r,τ_A)
+function compute_A(r,τ_A = 0.05)
+    """Compute the activity (in units of 1/τ_h), with a low-pass filtering of time constant τ_A (in units of τ_h)."""
     A = zeros(length(r))
     A[1] = r[1]*dt/τ_A
     for t in 1:length(r)-1
@@ -122,7 +125,7 @@ function compute_A(r,τ_A)
     end
     return A
 end
-A = compute_A(r,2e-2)
+A = compute_A(r)
 
 
 ########## Find matching spikes
@@ -191,7 +194,7 @@ shortstep = Int((5)/dt)
 
 T_pl = T/2
 n_pl = Int(T_pl/dt)
-p2 = plot(times[n_pl-shortstep:n_pl],A[n_pl-shortstep:n_pl], lw=1.5, ylabel=L"$A$ [Hz]", color=:red)
+p2 = plot(times[n_pl-shortstep:n_pl],A[n_pl-shortstep:n_pl], lw=1.5, ylabel=L"A \ [\tau_h^{-1}]", color=:red)
 raster_times,raster_inds = get_raster_data(n_pl)
 p3 = scatter(raster_times,raster_inds, xlabel=L"t", ylabel="Neuron index", color=:red)
 
@@ -199,7 +202,7 @@ T_pl = T
 n_pl = Int(T_pl/dt)
 p4 = plot(times[n_pl-shortstep:n_pl],A[n_pl-shortstep:n_pl], lw=1.5, color=:magenta)
 raster_times,raster_inds = get_raster_data(n_pl)
-p5 = scatter(raster_times,raster_inds, xlabel=L"t", color=:magenta)
+p5 = scatter(raster_times,raster_inds, xlabel=L"t \ [\tau_h]", color=:magenta)
 
 #display(p1)
 display(plot(p2,p4,p3,p5,layout=(2,2),link=:x))
