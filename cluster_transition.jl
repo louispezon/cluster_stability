@@ -30,12 +30,12 @@ mu_0 = 1.2
 mu_1 = 1.2
 J = 0.4
 
-τ_h = 10 # ms ##### !!!! all times are expressed in units of τ_h !!!!
+#τ_h = 10 # ms ##### !!!! all times are expressed in units of τ_h !!!!
 # kernel params:
 Δ = 0.5 # τ_h
 τ = 0.2 # τ_h
 
-T = 100  # τ_h
+T = 50  # τ_h
 T_step = T/2
 
 μ(t) = mu_0*(t<T_step) + mu_1*(t>=T_step) # + mu_0*(t>=2*T_step)
