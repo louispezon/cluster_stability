@@ -30,7 +30,11 @@ mu_0 = 1.2
 mu_1 = 1.2
 J = 0.4
 
-#τ_h = 10 # ms ##### !!!! all times are expressed in units of τ_h !!!!
+########################################################
+## !!!! all times are expressed in units of τ_h !!!!
+#  (the membrane time constant)
+########################################################
+
 # kernel params:
 Δ = 0.5 # τ_h
 τ = 0.2 # τ_h
@@ -196,7 +200,7 @@ T_pl = T/2
 n_pl = Int(T_pl/dt)
 p2 = plot(times[n_pl-shortstep:n_pl],A[n_pl-shortstep:n_pl], lw=1.5, ylabel=L"A \ [\tau_h^{-1}]", color=:red)
 raster_times,raster_inds = get_raster_data(n_pl)
-p3 = scatter(raster_times,raster_inds, xlabel=L"t", ylabel="Neuron index", color=:red)
+p3 = scatter(raster_times,raster_inds, xlabel=L"t \ [\tau_h]", ylabel="Neuron index", color=:red)
 
 T_pl = T
 n_pl = Int(T_pl/dt)
